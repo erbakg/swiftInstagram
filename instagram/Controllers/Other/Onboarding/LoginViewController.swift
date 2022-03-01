@@ -89,10 +89,10 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loginButton.addTarget(self, action: #selector(didTabLoginButton), for: .touchUpInside)
-        createAccountButton.addTarget(self, action: #selector(didTabCreateAccountButton), for: .touchUpInside)
-        termsButton.addTarget(self, action: #selector(didTabTermsButton), for: .touchUpInside)
-        privacyButton.addTarget(self, action: #selector(didTabPrivacyButton), for: .touchUpInside)
+        loginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
+        createAccountButton.addTarget(self, action: #selector(didTapCreateAccountButton), for: .touchUpInside)
+        termsButton.addTarget(self, action: #selector(didTapTermsButton), for: .touchUpInside)
+        privacyButton.addTarget(self, action: #selector(didTapPrivacyButton), for: .touchUpInside)
         
         usernameEmailField.delegate = self
         passwordField.delegate = self
@@ -193,7 +193,7 @@ class LoginViewController: UIViewController {
         view.addSubview(headerView)
     }
     
-    @objc private func didTabLoginButton(){
+    @objc private func didTapLoginButton(){
         passwordField.resignFirstResponder()
         usernameEmailField.resignFirstResponder()
         
@@ -203,9 +203,42 @@ class LoginViewController: UIViewController {
               }
         
         // login functionality
+        
+        var username: String?
+        var email: String?
+        
+        if usernameEmail.contains("@"), usernameEmail.contains("."){
+            //email
+            email = usernameEmail
+        } else {
+            //username
+            username = usernameEmail
+        }
+        
+        AuthManager.shared.loginUser(
+            userName: username, email: email, password: password) { success in
+                DispatchQueue.main.async {
+                    if success {
+                        //user logged in
+                        self.dismiss(animated: true, completion: nil)
+                    } else {
+                        //error eccurred
+                        let alert = UIAlertController(
+                            title: "Log In Error",
+                            message: "We were unable to log you in.",
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: "Dismiss",
+                                                      style: .cancel,
+                                                      handler: nil))
+                        self.present(alert, animated: true)
+                    }
+                }
+               
+            }
     }
     
-    @objc private func didTabTermsButton(){
+    @objc private func didTapTermsButton(){
         guard let url = URL(string: "https://help.instagram.com/581066165581870") else {
             return
         }
@@ -213,7 +246,7 @@ class LoginViewController: UIViewController {
         present(vc, animated: true)
     }
     
-    @objc private func didTabPrivacyButton(){
+    @objc private func didTapPrivacyButton(){
         guard let url = URL(string: "https://help.instagram.com/519522125107875/?maybe_redirect_pol=0") else {
             return
         }
@@ -221,9 +254,10 @@ class LoginViewController: UIViewController {
         present(vc, animated: true)
     }
     
-    @objc private func didTabCreateAccountButton(){
+    @objc private func didTapCreateAccountButton(){
         let vc = RegistrationViewController()
-        present(vc, animated: true)
+        vc.title = "Create Account"
+        present(UINavigationController(rootViewController: vc), animated: true)
     }
     
 }
@@ -235,7 +269,7 @@ extension LoginViewController: UITextFieldDelegate {
             passwordField.becomeFirstResponder()
         }
         else if textField == passwordField {
-            didTabLoginButton()
+            didTapLoginButton()
         }
         
         return true
