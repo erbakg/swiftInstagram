@@ -57,12 +57,12 @@ public class AuthManager {
     public func loginUser(userName: String?, email: String?, password:String, completion: @escaping (Bool) -> Void){
         if let email = email {
             //email login
-            
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
                 guard authResult != nil, error == nil else {
                      completion(false)
                     return
                 }
+                completion(true) 
             }
         }
         else if let userName = userName {
@@ -70,6 +70,17 @@ public class AuthManager {
             print(userName)
         }
     }
-    
+    ///Attemp log out firebase user
+    public func logout(completion:(Bool)-> Void) {
+        do {
+            try Auth.auth().signOut()
+            completion(true)
+            return
+        } catch {
+            completion(false)
+            print(error)
+            return
+        }
+    }
     
 }
